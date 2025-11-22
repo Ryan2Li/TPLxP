@@ -3,6 +3,8 @@
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
+gradle-app.setting
+.gradletasknamecache
 
 # VS Code
 .vscode/
@@ -14,9 +16,14 @@ bin/
 # OS files
 .DS_Store
 Thumbs.db
+*~
 
 # Java
 *.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
 
 # IDEs
 .idea/
@@ -24,8 +31,22 @@ Thumbs.db
 *.ipr
 *.iws
 out/
+.classpath
+.project
+.settings/
+*.launch
 
 # Temporary files
 *.tmp
 *.swp
 *.swo
+*.bak
+
+# Package Files
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+replay_pid*

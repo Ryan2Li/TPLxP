@@ -65,6 +65,13 @@ public class Sender {
     private synchronized void transmit(int seqNum) {
         int slot = seqNum % BUF_SIZE;
         BufferedPacket buffered = buffer[slot];
+        
+        // Add null check
+        if (buffered == null) {
+            logger.warn("Attempted to transmit null packet at seqNum {}", seqNum);
+            return;
+        }
+        
         Packet packet = buffered.packet;
 
         llEndpoint.send(packet.toBytes());
@@ -142,7 +149,9 @@ public class Sender {
 
         for (int seq = lastAckRecv + 1; seq <= lastSeqSent; seq++) {
             int slot = seq % BUF_SIZE;
-            buffer[slot].sendTime = Instant.EPOCH;
+            if (buffer[slot] != null) {
+                buffer[slot].sendTime = Instant.EPOCH;
+            }
         }
         lastSeqSent = lastAckRecv;
 
@@ -181,7 +190,7 @@ public class Sender {
             int slot = prevAckRecv % BUF_SIZE;
             BufferedPacket buffered = buffer[slot];
 
-            // Check if buffer slot is not null before accessing
+            // FIXED: Check if buffer slot is not null before accessing
             if (buffered != null) {
                 if (buffered.sendTime != null && !buffered.sendTime.equals(Instant.EPOCH)) {
                     Duration elapsed = Duration.between(buffered.sendTime, recvTime);
@@ -190,6 +199,10 @@ public class Sender {
                 }
 
                 buffer[slot] = null;
+                bufSlot.release();
+            } else {
+                // Log warning but continue processing
+                logger.warn("Buffer slot {} is null while processing ACK {}", slot, packet.getSeqNum());
                 bufSlot.release();
             }
         }
